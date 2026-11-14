@@ -1,0 +1,48 @@
+# Obsidian proje hafızası
+
+Proje hafızası Obsidian vault'unda: `~/Desktop/hafıza/hafıza`. Oturum başında ve her compact'tan sonra bir SessionStart hook'u (`~/.claude/hooks/hafiza.py`) aktif projenin notlarını bağlama ekler. Bu notlar kaldığın yeri gösterir; sıfırdan keşfetmeye başlamadan önce onlara güven.
+
+## Yapı
+`Projeler/<Ad>/` klasöründe şu dosyalar var:
+- `<Ad>.md`: ana not. Frontmatter'da `yol:` (projenin klasör yolları, liste) ve `durum:` (aktif / planlama / beklemede / bitti) var. Bölümler: Şu an · Sıradaki adım · Önemli bilgiler ve kararlar.
+- `Plan.md`: hedef ve fazlar.
+- `Yapılacaklar.md`: `- [ ]` görevler; Şimdi / Sonra / Bitti.
+- `Günlük.md`: en yeni en üstte, `## YYYY-AA-GG — kısa başlık`. "otomatik" kayıtları hook yazar, onlara dokunma.
+- `Arşiv.md`: eski ayrıntılı notlar. Sadece gerekince oku.
+
+## Kurallar
+1. **Oku:** Hook bağlamı proje eşleşmedi diyorsa ve kullanıcı listedeki bir projeden bahsederse, işe başlamadan o projenin ana notunu, `Plan.md` ve `Yapılacaklar.md` dosyalarını oku.
+2. **Güncelle.** Şu anlarda notları güncelle: anlamlı bir adım bittiğinde (özellik çalıştı, hata çözüldü, faz bitti), plan değiştiğinde, uzun bir işin ortasında ve kullanıcı konuyu kapatırken. Ne güncellenir:
+   - Ana not: "Şu an" ve "Sıradaki adım". Bir yabancı bu iki bölümü okuyup işe devam edebilmeli.
+   - `Yapılacaklar.md`: biteni `[x]` yapıp Bitti'ye taşı, yeni çıkanı ekle.
+   - `Günlük.md`: en üste 3-6 maddelik kayıt yaz. Ne yapıldı, neden, hangi dosyalar, açık kalan ne.
+   - Kalıcı karar veya tuzak (API davranışı, mimari seçim, "şunu yapma") ana notun "Önemli bilgiler ve kararlar" bölümüne.
+3. **Yeni proje:** Kullanıcı hafızada olmayan bir projede kalıcı iş yapıyorsa `Şablonlar/Proje/` dosyalarını `Projeler/<Ad>/` altına kopyala, `{{AD}}` yerine adı yaz, `yol:` kısmını doldur. Önce kullanıcıya kısaca haber ver.
+4. **İlk dokunuş:** Ana notta "Henüz özetlenmedi" yazıyorsa, o projede ilk anlamlı işten sonra `Arşiv.md` notundan "Şu an", "Sıradaki adım" ve "Önemli bilgiler" bölümlerini doldur.
+5. **Kısa tut:** Ana not ~60 satırı geçmesin. Eskiyen ayrıntı `Arşiv.md`'ye gider. Kod yapıştırma; dosya yolu ve fonksiyon adı yeter. Obsidian bağlantısı için `[[Projeler/<Ad>/<Not>|<Not>]]` kullan.
+6. **Araçlar:** `mcp__hafiza__*` araçları yüklüyse notları dosya düzenleyerek değil onlarla oku ve yaz: `proje_oku` (kural 1), `adim_kaydet` (kural 2: ana not + Yapılacaklar + Günlük tek çağrıda), `gorev_ekle` / `gorev_tamamla`, `proje_olustur` (kural 3), `kural_oku` / `faz_kapisi` / `kontrol_guncelle` (üretim kontrolü), `plan_faz_isaretle` (faz bitince), `arsivle` (kural 5), `is_akisi` (projenin iş akışı ve güvenlik notları), `genel_bakis` / `denetle` (durum ve not sağlığı), `oturum_mesaji` (paralel oturuma not), `gelen_kutusu`, `otomatik_sikistir` (eski otomatik kayıtları arşivler; "dokunma" kuralının tek istisnası), `geri_al` (yanlış yazmayı geri alır). `Plan.md`'nin geri kalanı ve standart dışı notlar elle düzenlenir. Araç yoksa veya hata verirse dosya düzenlemeye dön.
+7. **Hafızayı ayır:** Proje durumu, plan ve görevler vault'a yazılır. Claude auto-memory yalnızca kullanıcı tercihleri ve genel geri bildirimler (projeden bağımsız) için kullanılır.
+
+# Üretim kontrolü (tüm projeler)
+
+Kaynak dosya `~/Desktop/hafıza/hafıza/Kurallar/Üretim Kontrolü.md` (kimlikli maddeler: `F-12`, `T-03`, `AN-04`, `GP-01` gibi); **tamamını okuma.** Proje türüne göre parçalara bölünmüş hali `~/Desktop/hafıza/hafıza/Kurallar/Üretim Kontrolü/` klasöründedir: `Web`, `Apple`, `Android`, `Oyun`, `Araç` ve ek modüller (`Ek - Mağaza`, `Ek - Apple İncelemesi`, `Ek - Google Play İncelemesi`, `Ek - Mağaza Sayfası ve Büyüme`, `Ek - Gelir`, `Ek - Yapay Zekâ`). Oturum başındaki hafıza bağlamı projenin parçalarını yol olarak verir; yalnız onları, onlarda da önce dizini, sonra fazın kapısındaki kimlikleri oku (`kural_oku` aynı işi dosya açmadan yapar). Hangi proje neyi okur: `Rehber.md`. Profil, aşama ve fazlara yayma kuralları: `Yöntem.md` (aşağıda "Bölüm" denen yerler oradadır). Parçalar üretilmiştir, elle düzenlenmez; madde değişikliği yalnız kaynağa yapılır (`~/.claude/hooks/uretim_bol.py` oturum başında yeniler). Alt ajana iş verirken parça dosyasının yolu ve kimlikler verilir.
+
+1. **Fazlara yay:** Bir projede `Plan.md` oluştururken, faz eklerken veya planı değiştirirken (ve hafızadaki bir projede `Plan.md`'de henüz "Kontrol kapısı" yoksa ilk plan/faz işinde) projenin profilini (`YEREL/BULUT/WEB-S/WEB-API/OYUN/ARAÇ` + `YZ/MAĞAZA/GELİR`) ve aşamasını belirle. Uygulanır maddeleri Bölüm 8'e göre fazlara dağıt: her faza `**Kontrol kapısı:** <ID'ler>` satırı, `Plan.md`'nin başına profil/aşama bloğu. Yayına gidecek projede eksik faz varsa (Sertleştirme, Yayın hazırlığı, Mağaza ve lansman) plan sonuna ekle ve kullanıcıya tek cümleyle bildir.
+2. **Faz başında:** O fazın kapısındaki maddelerin tam metnini oku; iş gerektirenleri `Yapılacaklar.md` "Şimdi" altına `[Üretim <ID>]` önekiyle ekle.
+3. **Faz sırasında:** Kod yazarken kapı maddelerinin "Kontrol" ve "Geçer" ölçütlerini tasarım kuralı olarak uygula. Özellik fazlarında Özellik Bitti Tanımı (§8.2) her zaman geçerlidir.
+4. **Faz sonunda:** Kapı maddelerini kanıtla (`dosya:satır`, komut çıktısı) kontrol et ve `Projeler/<Ad>/Kontrol.md` tablosunu güncelle. 🔴 bir madde ❌/⚠️ ise faz bitmiş sayılmaz; sadece kullanıcı açıkça onaylarsa ertelenir ve not edilir.
+5. **Sınırlar:** Denetim salt-okunurdur, düzeltme için kullanıcıya sor. Bulunan sırları asla yazdırma, maskele. X kategorisi (saldırgan gibi test) sadece kendi uygulamanda, staging'de ve kullanıcı onayıyla yapılır. Orantılı ol: kişisel, küçük projeye Kubernetes gibi abartılı öneriler yapma; uymayan maddeyi gerekçesiyle `➖` işaretle.
+6. **Proje kuralı:** Projeye özel kalıcı kurallar proje kökünde `.claude/rules/uretim.md` dosyasına yazılır (şablon: Bölüm 4).
+
+# Ajan iş akışı (tüm projeler)
+
+Ana kural dosyası: `~/Desktop/hafıza/hafıza/Kurallar/Ajan İş Akışı.md` (kısa). İlk ajanı açmadan ya da Gemini'ye ilk işi vermeden önce oku; oturumda bir kez yeter. Ajan tanımları `~/.claude/agents/` altında: `mekanik`, `uygulayici-haiku`, `uygulayici`, `test-yazari`, `guvenlik-denetcisi`.
+
+1. **Varsayılan:** Opus tek başına çalışır ve kod yazabilir. Ajan; iş ayrılabilir, yeterince büyük, doğrulanabilir ve ortak kaynak çakışmıyorsa açılır. Bu şartlar sağlanınca kullanıcıya sormadan aç (kalıcı izin); amaç maliyeti düşürmek ve hız kazanmak. Küçük işte ajan açma.
+2. **Sıra:** Haiku yapabilir mi → Gemini'ye uygun mu → Sonnet. Derleme, test, ölçüm gibi kapı işleri `mekanik`e gider. Opus küçük düzeltmeyi kendisi yapar, ajan iki kez başarısız olursa işi devralır.
+3. **Efor:** Sonnet en çok `medium` (yalnız `guvenlik-denetcisi` `high`), Haiku en çok `high`. Tanımdaki eforu çağrıda yükseltme. Yerleşik ajan türlerinde (`general-purpose`, `Explore`) `model` ve `effort` her çağrıda açıkça verilir.
+4. **İş tanımı:** Her ajan istemi kuralın 7. bölümündeki şablonu taşır (amaç, önce oku, kapsam, kabul ölçütleri, doğrulama, çalışma yeri, rapor dosyası, kısıtlar).
+5. **Denetim ve kayıt:** Ajan raporu iddiadır; diff'i oku, doğrulamayı yeniden koştur. Sonra `Günlük.md`'ye yaz ve kullanıcıya 3-6 satırlık ara rapor ver.
+6. **Test ajanı ve güvenlik denetçisi:** işin kapsamına göre (kuralın 6. bölümü); her işte açılmaz.
+7. **Projeye göre hat ve güvenlik:** `~/Desktop/hafıza/hafıza/Kurallar/İş Akışı/` klasörü. Bir projede ilk plan, faz ya da ajan işinden önce `İş Akışı.md` (seçim notu) ile projenin tür notunu oku (`Web ve Sunucu`, `Apple Uygulaması`, `Oyun`, `Araç ve MCP`, `Araştırma ve Belge`); oturumda bir kez. Tür ve güvenlik sınıfı (GS0-GS3) `Plan.md` profil bloğundaki `**İş akışı:**` satırındadır; yoksa ekle. İş bir güvenlik tetikleyicisine dokunuyorsa (kimlik, yetki, erişim kuralı, migration, sır, ödeme, dış girdi, alt süreç, bağımlılık, CI) ya da proje GS2-GS3 ise `Güvenlik Hattı.md` dosyasını da oku ve sınıfın kapılarını uygula. Canlıda yazma (migration, dağıtım, sır) her seferinde Ozan'ın onayıyla; canlı MCP araçları alt ajanlara kapalı. Güvenlik kapısı zaman ya da kota için atlanmaz. `mcp__hafiza__is_akisi` bu notları tek çağrıda getirir. `~/.claude/hooks/guvenlik.py` kancası sır okumayı ve kanca atlatmayı engeller, canlı yazmaları Ozan'a sordurur; engellenen işlemi başka yoldan deneme, kancayı kapatma.
+8. **Alt ajansan:** bu bölüm ve yukarıdaki "Güncelle" kuralı sana uygulanmaz. Ajan başlatma, vault notlarını güncelleme; kendi tanımındaki kurallara ve iş tanımına uy.
