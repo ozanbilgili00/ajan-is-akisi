@@ -1,7 +1,7 @@
 ---
 tür: ana-kural
-sürüm: 1.2
-güncellendi: 2026-11-12
+sürüm: 1.4
+güncellendi: 2026-11-19
 ---
 
 # Ajan İş Akışı: Ana Kural Dosyası
@@ -28,7 +28,7 @@ Alt ajanların (Haiku, Sonnet), Gemini'nin ve Opus'un hangi işi ne zaman yapaca
 | `uygulayici` | Sonnet · medium | Çok dosyalı ya da tasarım kararı isteyen paket; güvenlik açısından kritik kod | — |
 | `test-yazari` | Sonnet · medium | Tariften bağımsız test (uygulama kodunu okumadan) | Uygulama kodunu değiştirmek |
 | `guvenlik-denetcisi` | Sonnet · high | Temiz bağlamda bağımsız güvenlik denetimi | Kod değiştirmek |
-| Gemini (`mcp__gemini__*`) | Gemini 4 Hidrojen · kod `high`, okuma ve özet `low`-`medium` | Sonnet'in yapacağı büyük ve tarifi net kod paketi, büyük okuma ve özet; şartlar uyuyorsa (Bölüm 5) | Denetim, güvenlik kodu, tasarım kararı isteyen paket |
+| Gemini (`mcp__gemini__*`) | Gemini 4 Hidrojen ve Neon, en çok `high` (varsayılan: kod Hidrojen `high`, okuma `low`-`medium`, inceleme Neon `high`) | Sonnet'in yapacağı büyük ve tarifi net kod paketi, büyük okuma ve özet, ek inceleme; şartlar uyuyorsa (Bölüm 5) | Güvenlik denetimi, güvenlik kodu, tasarım kararı isteyen paket |
 
 - Hiçbir alt ajan başka ajan açamaz, Gemini'yi çağıramaz. `mekanik` dışındakiler hafıza araçlarını kullanamaz.
 - Canlıya erişen araçlar (Supabase, Firebase, Vercel MCP) tüm alt ajanlara kapalıdır (`disallowedTools`); yalnız yönetici kullanır (Güvenlik Hattı Bölüm 6).
@@ -84,21 +84,28 @@ Amaç Claude kotasını korumak. Gemini, Sonnet uygulayıcının yerine şu şar
 - Dokunulacak dosyaların listesi açıkça verilebiliyor (kopyada `.git` yok; `git diff`, `git log` istenmez).
 - Uygulamayı çalıştırmak, ağa çıkmak ya da cihaz kullanmak gerekmiyor.
 - Kimlik, yetki, şifreleme, ödeme kodu değil.
-- Acil değil (taban yaklaşık 40 saniye, büyük iş 7-19 dakika).
+- Acil değil (ölçülen süre: okuma 25-70 saniye, kod paketi Hidrojen 2-3, Neon 4-6 dakika).
 - `gemini_status` kotanın müsait olduğunu gösteriyor.
 
 Akış: `gemini_status` → `gemini_task` (kod) ya da `gemini_ask` (okuma, özet) → `gemini_result` → yamayı Opus okur → `gemini_apply` → derleme ve test → kötüyse geri al.
 
 Kurallar:
-- Aynı anda tek iş. Kota birlikte tükenir, işler yarıda kalır.
-- **Model: Gemini 4 Hidrojen.** Kademe seçilir, model kimliği yazılmaz:
-  - Kod paketi (`gemini_task`): `tier: derin` (`gemini-4-hydrogen-high`).
-  - Depo okuma, özet, rapor taslağı (`gemini_ask`): `tier: dengeli` (`medium`); kısa ve tek konulu okuma `tier: hizli` (`low`).
-  - `xhigh` kullanılmaz: `high`a göre yaklaşık iki kat çıktı token'ı, küçük kazanç. Yalnız Ozan isterse.
-- **Hidrojen'in sınırı:** bağımsız ölçümde Sonnet 5.5'in biraz altında; terminal ve uzun ajan işlerinde Sonnet önde. Bu yüzden tasarım kararı isteyen ya da uygulamayı çalıştırarak ilerleyen paket Gemini'ye gitmez, `uygulayici`de kalır.
-- **Yükseltme:** Hidrojen aynı pakette iki kez başarısız olursa iş `uygulayici`ye (Sonnet) geçer. Claude kotası doluysa ve paket bekleyemiyorsa `model: claude-sonnet-5-5-medium` ile Gemini üzerinden bir kez denenir; üstüne çıkılmaz.
-- Denetim ve inceleme Gemini'ye verilmez (eski modellerde `high` efor kotayı çok hızlı bitirdi, bulguların yaklaşık 6'da 1'i yanlıştı; Hidrojen'le yeniden ölçülmedi).
-- Hidrojen'in Pro hesaptaki kotası bilinmiyor. İlk işlerde `gemini_status` kullanım özeti `Projeler/Gemini MCP` günlüğüne yazılır; kota hatası gelirse tarih ve iş sayısı not edilir.
+- Aynı anda en çok 2 bağımsız iş (MCP sınırı; 7 paralel çağrı 429 verdi, 2 paralel iş 5 turda sorunsuz çalıştı). Aynı dosyaları değiştiren iki kod işi paralel verilmez.
+- **Modeller: Gemini 4 Hidrojen (varsayılan) ve Neon (inceleme, yedek).** 2026-11-19'da aynı işler iki modele verilip ölçüldü (Bölüm 14). Kademe seçilir; yalnız inceleme için model kimliği yazılır:
+
+  | İş | Çağrı | Neden |
+  |---|---|---|
+  | Kod paketi | `gemini_task`, `tier: derin` (Hidrojen `high`) | Gizli testlerde Neon'la aynı sonuç, yaklaşık yarı sürede ve 0,6 kat token'la |
+  | Depo okuma, özet, rapor taslağı | `gemini_ask`, `tier: dengeli` (`medium`); kısa ve tek konulu okuma `tier: hizli` (`low`) | Beş doğrulanabilir soruda dört modelin dördü de doğru; en hızlısı Hidrojen `low` |
+  | Genel kod incelemesi (ek göz) | `gemini_ask`, `role: inceleme`, `model: gemini-4-neon-high` | Neon yanlış alarm vermedi ve kasıtlı tuzak kodu doğru gerekçeyle ayıkladı; Hidrojen bir yanlış alarm verdi |
+  | Hidrojen kotası dolduğunda | Zincir kendiliğinden Neon `high`a, sonra Hidrojen `medium`a, 3.8 Flash'a düşer | MCP yapılandırması |
+
+- **Efor tavanı (Ozan, 2026-11-19: "neon ve hidrojeni high eforda kullanabilirsin"):** Hidrojen ve Neon her iş türünde `high` eforla kullanılabilir. Tabloda yazanlar varsayılandır, tavan değil: büyük ya da karmaşık depo okumasında Hidrojen `high` (`model: gemini-4-hydrogen-high`), tarifi net ama zor bir kod paketinde Neon `high` (`model: gemini-4-neon-high`) seçilebilir. Seçim gerekçesi ara raporda bir cümleyle söylenir. Efor `high`ı aşmaz.
+- **Kullanılmayanlar:** `xhigh` (Hidrojen ve Neon; `high`a göre yaklaşık iki kat çıktı token'ı, küçük kazanç; tavan `high` olduğu için yalnız Ozan açıkça isterse), Argon (Ozan'ın kararı), `gemini-pro-orchestrator-*` (kendi alt ajanlarını açar, kota ve kontrol dışı kalır; denenmedi). Neon kod ya da okuma için varsayılan değildir (ölçümde doğrulukta kazanç yok, 2-3 kat yavaş); gerekçeli seçimdir.
+- **Sınırlar:** Hidrojen ve Neon bağımsız ölçümlerde Sonnet 5.5'in altında ya da yakınında; terminal ve uzun ajan işlerinde Sonnet önde. Neon'un öne çıkan kodlama puanı (SWE-sweep %39) Antigravity'nin kendi ortamında (alt ajanlar, ayrı git çalışma ağaçları) alındı; basit ortamda %12,8. Bizim MCP'de Gemini kopyada, kum havuzunda ve komut çalıştırmadan çalışır, o avantaj yansımaz. Bu yüzden tasarım kararı isteyen ya da uygulamayı çalıştırarak ilerleyen paket Gemini'ye gitmez, `uygulayici`de kalır.
+- **Yükseltme:** Aynı pakette iki kez başarısız olursa iş `uygulayici`ye (Sonnet) geçer. Claude kotası doluysa ve paket bekleyemiyorsa `model: claude-sonnet-5-5-medium` ile Gemini üzerinden bir kez denenir; üstüne çıkılmaz.
+- **İnceleme sınırı:** Güvenlik denetimi ve kimlik, yetki, şifreleme, ödeme kodunun incelemesi Gemini'ye verilmez. Neon incelemesi `guvenlik-denetcisi`nin ya da Opus'un yerine geçmez, onlara ek ikinci gözdür; bulgular koda bakılarak doğrulanır. Ölçüm tek ve küçük bir dosyaydı (5 tohumlanmış hata); en az 3 gerçek projede kullanılıp bulgu doğruluğu `Projeler/Gemini MCP` günlüğüne yazılmadan bu kural genişletilmez.
+- **Kota:** Pro hesapta 10 işte (yaklaşık 670 bin token, 23 dakika) kota engeli çıkmadı; üst sınır hâlâ bilinmiyor. `gemini_status` kullanım özeti ara sıra `Projeler/Gemini MCP` günlüğüne yazılır; kota hatası gelirse tarih ve iş sayısı not edilir.
 - Küçük soru ve deneme çağrısı yapılmaz.
 - Kota doluysa sormadan Claude ajanına dönülür, ara raporda belirtilir.
 - Gemini'nin her iddiası koda bakılarak doğrulanır.
@@ -156,7 +163,7 @@ Commit, push ve PR kuralları projeye göredir (`uretim.md`). Proje kuralı yoks
 ## 9. Paralellik
 
 - Paralel ajan yalnız dosyaları kesişmeyen işlerde, ayrı worktree ve dalda açılır. Aynı dosyalara dokunan işler sıralıdır.
-- Aynı anda en çok 3 ajan, bunların en çok 2'si Sonnet. Gemini ayrıca en çok 1 iş.
+- Aynı anda en çok 3 ajan, bunların en çok 2'si Sonnet. Gemini ayrıca en çok 2 iş.
 - Ortak kaynaklar sırayla kullanılır: tek Unity örneği, tek simülatör, tek Xcode derleme klasörü, cihaz, ana çalışma kopyası.
 - Aynı projede ikinci bir Claude oturumu varsa iş bölümü `ListAgents` ve `SendMessage` ile yapılır, ana nota yazılır.
 
@@ -205,5 +212,12 @@ Bu kurallar Ozan'ın talimatlarından ve ölçümlerden derlendi. Değiştirirke
 - **2026-10-12 (bu dosya):** Ozan'ın kararları: Opus kod yazabilir ve ajanın yapamadığı işi devralır; ajanlar her projede değil, şartlar elverişliyse; Gemini maliyet için, gerektiğinde Sonnet gibi; test ajanı ve güvenlik denetçisi projenin kapsamına göre. Bölüm 2'deki eşikler, Bölüm 3'teki Sonnet listesi ve Bölüm 9'daki "en çok 3 ajan" Opus'un önerisidir; Ozan değiştirebilir.
 - **2026-11-10:** Ozan: "iş akışını yapılan projeye göre değiştirmeyi istiyorum, kategori olarak iş akışı yapalım, özellikle güvenlik kısmı sıkı olmalı"; kararları Opus'a bıraktı. `Kurallar/İş Akışı/` kategorisi açıldı (seçim notu, güvenlik hattı, beş tür notu). Bu dosyaya eklenenler: canlı MCP araçlarının alt ajanlara kapatılması, GS3'te orta bulgu engeli, iş tanımına Güvenlik maddesi, Kampüs Karnesi ve POS dersleri (açık yasak dili, `&&` zinciri, rapor reddi). Aynı gün ikinci tur ("hepsini yap"): güvenlik kancası, ölçüm kancası, oturum kancasında iş akışı bloğu, Hafıza MCP `is_akisi` aracı, 29 projenin `Plan.md` satırı, şablonlar (`Şablonlar/İş Tanımı.md`, `Şablonlar/Güvenlik.md`), Üretim Kontrolü v1.2 (Bizim Site F10 dersleri). Yedek: `~/.claude/yedek/2026-11-10/`.
 - **2026-11-12:** Ozan: "geminide hidrojen modelini de mcpye ekle ve ajan kullanımı kuralını ona göre kullan". Gemini 4 Hidrojen aynı gün çıktı; Google'ın günlük kodlama ve ajan işi modeli, 1M bağlam, efor `low/medium/high/xhigh` (varsayılan `high`). Artificial Analysis endeksi: `low` 27, `medium` 41, `high` 51, `xhigh` 54; görev başı maliyet `high` 1,87 $, `xhigh` 3,16 $ (Sonnet 5.5'in yaklaşık üçte biri). Terminal-Bench 4.0 bağımsız ölçüm: Hidrojen %54, Sonnet 5.5 %64. Rakamlar çıkış günü haberlerinden, bağımsız doğrulaması sınırlı. Kendi denememiz: `low` ve `medium` başsız modda depo kopyasından dosyayı doğru okudu (48 sn, ~27 bin token). Kademe seçimi ve "kodda `high`, `xhigh` yok" kuralı Opus'un önerisidir; Ozan değiştirebilir. Kod yazma kalitesi Hidrojen'le henüz ölçülmedi; aşağıdaki ölçümler eski modellere aittir.
+- **2026-11-19 (efor):** Ozan: "neon ve hidrojeni high eforda kullanabilirsin"; Gemini efor tavanı `high`, `xhigh` hâlâ kapalı. Bu, Bölüm 1'deki diğer ajanların efor tavanlarıyla aynı mantıkta (`medium`/`high` sınırı).
+- **2026-11-19:** Ozan: "gemini kısmında neon ve hidrojen modellerini araştır ve detaylıca ajan iş akışına ikisini de entegre et, ayrıca gemini mcpyi bir dene, modellerin işleri yaptıklarından ve kalitelerine bak". Neon 18 Kasım'da çıktı (1M bağlam, API $3/$15; Hidrojen $1,50/$7,50; efor low-xhigh, varsayılan high; Pro ve Ultra'da Antigravity'de). Artificial Analysis'e göre zekâ endeksi 61 (xhigh), Hidrojen 54; görev başı maliyet Carbon'dan %17 düşük. Kaynaklarda Pro kotası yok.
+- **Ölçüm 2026-11-19 (agy 1.5.9, aynı iş iki modele, `Projeler/Gemini MCP` günlüğünde ayrıntı):**
+  - Okuma (5 doğrulanabilir soru): Hidrojen `low` 25 sn / 31 bin token, Hidrojen `medium` 33 sn / 45 bin, Neon `medium` 34 sn / 44 bin, Neon `low` 69 sn / 43 bin; dördü 5/5 doğru.
+  - Kod, basit (süre ayrıştırıcı, 48 gizli test): Hidrojen `high` 107 sn / 67 bin token, 48/48; Neon `high` 253 sn / 85 bin, 48/48. Kod, zor (eşzamansız öncelik kuyruğu, 18 gizli test, testler benim referans çözümümle doğrulandı): Hidrojen 175 sn / 95 bin, 18/18; Neon 361 sn / 153 bin, 18/18. İkisinde de tip denetimi temiz. Neon daha uzun kod (270 satıra karşı 195) ve daha çok kendi testini (22'ye karşı 10) yazdı.
+  - İnceleme (40 satırlık sepet dosyası, 4 gerçek hata ve 2 kasıtlı tuzak): ikisi de 4 gerçek hatanın 4'ünü buldu. Hidrojen 64 sn, 1 yanlış alarm (KDV sırasını hata saydı; çarpma değişmeli olduğundan hata değil); Neon 254 sn, yanlış alarm yok, tuzağı "cebirsel olarak eşdeğer" diye doğru ayıkladı. Cevap anahtarımda 5. maddeyi yanlışlıkla hata saymıştım; sonuçlar buna göre düzeltildi.
+  - Yöntem sınırı: tek deneme, küçük görevler, iki modelin sonucu birbirine çok yakın; fark süre, token ve inceleme kesinliğinde. Kod kalitesinde fark ölçülemedi.
 - **Gemini ölçümleri (Hidrojen öncesi):** kod yazma güvenilir (20/20 gizli test; 21 dosyalık paket ilk çalıştırmada 0 tip, lint ve test hatası). İncelemede yaklaşık 6 bulgudan 1'i kendinden emin yanlış. Yeni hesapta kota 3 işte doldu (1 kod işi `medium`, 2 inceleme `high`; tek inceleme 534 saniyede 295 bin token), yaklaşık 5 saatte sıfırlanıyor. Ayrıntı: `Projeler/Gemini MCP`.
 - **Kampüs Karnesi deneyimi:** tariften test yazan ayrı ajan ve temiz bağlamlı denetçi, uygulayıcının kaçırdığı orta düzey bulguları yakaladı; limit yüzünden yarıda kalan ajan `SendMessage` ile aynı bağlamla sürdürüldü.

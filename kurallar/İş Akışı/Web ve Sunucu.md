@@ -1,7 +1,7 @@
 ---
 tür: iş-akışı
-sürüm: 1.0
-güncellendi: 2026-11-10
+sürüm: 1.1
+güncellendi: 2026-11-15
 ---
 
 # İş Akışı: Web ve Sunucu
@@ -55,3 +55,42 @@ güncellendi: 2026-11-10
 - Satır ve adet sınırı yalnız `insert` tetikleyicisinde olursa `update` ile aşılır. (Bizim Site F10)
 - Genel giriş kilidi, IP değiştiren biri tarafından herkesi kilitlemek için kullanılabilir; kilidi açan yönetim işlemi ve bildirim gerekir. (Bizim Site F10)
 - Ajanın verdiği mevzuat ve tarih bilgisi kaynağından doğrulanır. (POS, KVKK uyum tarihi yanlış gelmişti)
+
+## 6. Güvenlik skilleri
+
+Kural ve onay için [[Kurallar/İş Akışı/Güvenlik Hattı|Güvenlik Hattı]] Bölüm 8a. Skill dosyası denetçinin ya da test ajanının iş tanımına yol olarak verilir.
+
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/api-security|api-security]] · yeni API ucu ya da yetki kuralı eklenince.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/api-abuse|api-abuse]] · hız sınırı ve kötüye kullanım denetiminde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/business-logic|business-logic]] · adım atlama, tekrar, fiyat ve miktar akışında.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/idor|idor]] · kimlik alıp sahiplik denetimi yapan her uçta.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/parameter-pollution|parameter-pollution]] · aynı parametrenin birden çok kez gönderilebildiği uçta.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/xss|xss]] · kullanıcı içeriğini gösteren her yerde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/sqli|sqli]] · sorgu kuran her yerde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/ssti|ssti]] · şablon motoru kullanılan her yerde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/rce|rce]] · dış girdiyle komut ya da kod çalıştıran her yerde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/ssrf|ssrf]] · sunucunun dış adres çağırdığı her yerde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/file-upload|file-upload]] · dosya ve fotoğraf yükleme akışında.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/oauth|oauth]] · giriş ve geri dönüş adreslerinde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/open-redirect|open-redirect]] · giriş ve geri dönüş adreslerinde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/jwt|jwt]] · belirteç üretme ve doğrulama işinde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/race-condition|race-condition]] · sayaç, oy, stok ve tek kullanımlık hakta.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/toctou|toctou]] · sayaç, oy, stok ve tek kullanımlık hakta.
+- [[Kaynaklar/Güvenlik Skilleri/3 Kripto ve TLS/crypto-attacks|crypto-attacks]] · şifreleme, imza ve rastgelelik işinde.
+- [[Kaynaklar/Güvenlik Skilleri/3 Kripto ve TLS/tls-attacks|tls-attacks]] · HTTPS bağlantısı ve sertifika ayarında.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/supply-chain|supply-chain]] · yeni bağımlılık eklenince.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/dependency-confusion|dependency-confusion]] · yeni bağımlılık eklenince.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/cicd-pipeline|cicd-pipeline]] · CI dosyası değişince.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/cicd-secrets|cicd-secrets]] · CI dosyası değişince.
+- [[Kaynaklar/Güvenlik Skilleri/5 Yapay zekâ/ai-security|ai-security]] · YZ özelliği varsa.
+- [[Kaynaklar/Güvenlik Skilleri/7 Bulut ve konteyner/cloud|cloud]] · kendi bulut hesabı varsa.
+- [[Kaynaklar/Güvenlik Skilleri/7 Bulut ve konteyner/container-escape|container-escape]] · Docker ya da VPS varsa.
+- [[Kaynaklar/Güvenlik Skilleri/7 Bulut ve konteyner/k8s-attacks|k8s-attacks]] · Docker ya da VPS varsa.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/graphql|graphql]] · yalnız GraphQL kullanılıyorsa; yoksa ➖.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/request-smuggling|request-smuggling]] · yalnız o teknoloji varsa; yoksa ➖.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/waf-bypass|waf-bypass]] · yalnız WAF kullanılıyorsa; yoksa ➖.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/xxe|xxe]] · yalnız XML işleniyorsa; yoksa ➖.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/deserialization|deserialization]] · yalnız serileştirilmiş veri alınıyorsa; yoksa ➖.
+- [[Kaynaklar/Güvenlik Skilleri/6 Genel liste ve rapor/vuln-classes|vuln-classes]] · yayın öncesi tam denetimde.
+- [[Kaynaklar/Güvenlik Skilleri/6 Genel liste ve rapor/fast-checking|fast-checking]] · yayın öncesi tam denetimde.
+- [[Kaynaklar/Güvenlik Skilleri/6 Genel liste ve rapor/reporting|reporting]] · bulgu kaydı yazılırken.

@@ -1,7 +1,7 @@
 ---
 tür: iş-akışı
-sürüm: 1.0
-güncellendi: 2026-11-10
+sürüm: 1.1
+güncellendi: 2026-11-15
 ---
 
 # İş Akışı: Araç ve MCP
@@ -48,7 +48,23 @@ Bu araçlar küçük görünür ama çoğu **Ozan'ın makinesinde, onun yetkisiy
 ## 5. Tuzaklar
 
 - MCP araçları otomatik kip sınıflandırıcısına takılır; sunucu izin listesine eklenmeden ajan işi yarıda kalır. (MCP izin notu)
-- Gemini kotası birkaç işte dolar; inceleme işi `high` eforla kotayı bitirir ve bulguların bir kısmı yanlıştır. Hidrojen öncesi ölçüm; Hidrojen kotası henüz ölçülmedi. (Gemini MCP)
+- Gemini kotası birkaç işte dolar; inceleme işi `high` eforla kotayı bitirir ve bulguların bir kısmı yanlıştır. Hidrojen öncesi ölçüm; Hidrojen ve Neon'la 10 işte (~670 bin token) kota engeli çıkmadı, üst sınır bilinmiyor. (Gemini MCP)
 - Kural ya da faz eşleştiren araç, not biçimine duyarlıdır: `**Kontrol kapısı:**` satırı faz başlığının hemen altında olmalı. (Hafıza MCP)
 - Canlı boruda satır okuma bazı API'lerle teslim edilmez; süreç süren araçta akış okuma ayrıca test edilir. (Ajan Merkezi)
 - Betikte sabit geçici klasör yolu bırakma; oturuma özel klasör parametreyle verilir. (Ajan Merkezi)
+
+## 6. Güvenlik skilleri
+
+Kural ve onay için [[Kurallar/İş Akışı/Güvenlik Hattı|Güvenlik Hattı]] Bölüm 8a. Skill dosyası denetçinin ya da test ajanının iş tanımına yol olarak verilir.
+
+- [[Kaynaklar/Güvenlik Skilleri/5 Yapay zekâ/ai-security|ai-security]] · araç çıktısındaki dolaylı istem enjeksiyonu ve araç açıklamasında.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/rce|rce]] · alt süreç ve komut enjeksiyonunda.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/toctou|toctou]] · yol denetimi ile kullanım arasındaki sembolik bağda.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/ssrf|ssrf]] · URL çeken araçta.
+- [[Kaynaklar/Güvenlik Skilleri/8 Fuzzing/fuzzing|fuzzing]] · girdi ayrıştırıcılarında.
+- [[Kaynaklar/Güvenlik Skilleri/8 Fuzzing/fuzzing-course|fuzzing-course]] · girdi ayrıştırıcılarında, ders kaynağı olarak.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/supply-chain|supply-chain]] · npm ve pip bağımlılıklarında.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/dependency-confusion|dependency-confusion]] · npm ve pip bağımlılıklarında.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/cicd-pipeline|cicd-pipeline]] · CI varsa.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/cicd-secrets|cicd-secrets]] · CI varsa.
+- [[Kaynaklar/Güvenlik Skilleri/6 Genel liste ve rapor/reporting|reporting]] · bulgu yazımında.

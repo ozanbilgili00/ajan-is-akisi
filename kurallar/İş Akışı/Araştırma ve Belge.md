@@ -1,7 +1,7 @@
 ---
 tür: iş-akışı
-sürüm: 1.0
-güncellendi: 2026-11-10
+sürüm: 1.1
+güncellendi: 2026-11-15
 ---
 
 # İş Akışı: Araştırma ve Belge
@@ -48,3 +48,10 @@ güncellendi: 2026-11-10
 - Ajan istemine bot engeli atlatma talimatı yazılınca sınıflandırıcı reddeder. (POS)
 - Uygulayıcı ajan vault'a rapor yazmayı reddedebilir; rapor mesaj olarak gelir, yönetici günlüğe özetler. (POS)
 - "Hiçbir şey açıkta kalmasın" istenen derlemede ham raporlar silinmez; derleme onlara bağlantı verir. (Lab)
+
+## 6. Güvenlik skilleri
+
+Kural ve onay için [[Kurallar/İş Akışı/Güvenlik Hattı|Güvenlik Hattı]] Bölüm 8a. Skill dosyası denetçinin ya da test ajanının iş tanımına yol olarak verilir.
+
+- [[Kaynaklar/Güvenlik Skilleri/6 Genel liste ve rapor/reporting|reporting]] · güvenlik raporu ve bulgu yazımında.
+- [[Kaynaklar/Güvenlik Skilleri/6 Genel liste ve rapor/vuln-classes|vuln-classes]] · açık türlerini anlatırken başvuru olarak.

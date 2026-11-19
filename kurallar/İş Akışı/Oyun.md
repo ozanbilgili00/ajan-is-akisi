@@ -1,7 +1,7 @@
 ---
 tür: iş-akışı
-sürüm: 1.0
-güncellendi: 2026-11-10
+sürüm: 1.1
+güncellendi: 2026-11-15
 ---
 
 # İş Akışı: Oyun
@@ -50,3 +50,15 @@ güncellendi: 2026-11-10
 - Unity API'leri sürümler arasında değişir ve model bilgisi eskiyebilir; emin olunmayan çağrı belgeyle ya da yansımayla doğrulanır.
 - Sahne hiyerarşisi ve bileşen sorguları çok büyük çıktı verir; sayfalı ve özet öncelikli çağrı kullanılır.
 - Ağ davranışı tek istemciyle "çalışıyor" görünür; sahiplik hataları ancak ikinci istemciyle çıkar. (Korku Oyunu, Faz 3 otomatik devir testleri)
+
+## 6. Güvenlik skilleri
+
+Kural ve onay için [[Kurallar/İş Akışı/Güvenlik Hattı|Güvenlik Hattı]] Bölüm 8a. Skill dosyası denetçinin ya da test ajanının iş tanımına yol olarak verilir.
+
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/business-logic|business-logic]] · istemciye güvenme, skor, envanter, satın alma işinde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/race-condition|race-condition]] · çok oyunculu durum ve tek kullanımlık ödülde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/api-abuse|api-abuse]] · lobi ve katılma hız sınırında.
+- [[Kaynaklar/Güvenlik Skilleri/3 Kripto ve TLS/crypto-attacks|crypto-attacks]] · kayıt dosyası ve imza işinde.
+- [[Kaynaklar/Güvenlik Skilleri/2 Mobil/mobile|mobile]] · iOS derlemesinde.
+- [[Kaynaklar/Güvenlik Skilleri/8 Fuzzing/fuzzing|fuzzing]] · ağ mesajı ve kayıt dosyası ayrıştırıcısında.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/supply-chain|supply-chain]] · Unity paketlerinde.

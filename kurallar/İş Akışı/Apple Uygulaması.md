@@ -1,7 +1,7 @@
 ---
 tür: iş-akışı
-sürüm: 1.0
-güncellendi: 2026-11-10
+sürüm: 1.1
+güncellendi: 2026-11-15
 ---
 
 # İş Akışı: Apple Uygulaması
@@ -51,3 +51,19 @@ güncellendi: 2026-11-10
 - Düz `xcodebuild` çıktısı bağlamı doldurur; Xcode MCP kullan. (Ajan İş Akışı Bölüm 12)
 - Kart ve fotoğrafa dekoratif döndürme ekleme; büyük boşluk ve küçük yazı bırakma. (Ozan'ın tasarım tercihi)
 - Kullanıcının kancaları alt oturumlarda da çalışır; süreç süren uygulamalarda gürültü ve token maliyeti hesaba katılır. (Ajan Merkezi)
+
+## 6. Güvenlik skilleri
+
+Kural ve onay için [[Kurallar/İş Akışı/Güvenlik Hattı|Güvenlik Hattı]] Bölüm 8a. Skill dosyası denetçinin ya da test ajanının iş tanımına yol olarak verilir.
+
+- [[Kaynaklar/Güvenlik Skilleri/2 Mobil/mobile|mobile]] · saklama, Anahtar Zinciri, ATS ve sertifika sabitleme, URL şeması ve Universal Link, XPC, WebView işinde.
+- [[Kaynaklar/Güvenlik Skilleri/3 Kripto ve TLS/tls-attacks|tls-attacks]] · ağ bağlantısı ve sertifika doğrulama işinde.
+- [[Kaynaklar/Güvenlik Skilleri/3 Kripto ve TLS/crypto-attacks|crypto-attacks]] · yerel şifreleme işinde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/oauth|oauth]] · Sign in with Apple ve OAuth dönüşünde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/open-redirect|open-redirect]] · Sign in with Apple ve OAuth dönüş adreslerinde.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/business-logic|business-logic]] · satın alma, premium bayrağı ve GELİR işinde.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/supply-chain|supply-chain]] · SPM paketi eklenince.
+- [[Kaynaklar/Güvenlik Skilleri/4 Tedarik zinciri ve CI/dependency-confusion|dependency-confusion]] · SPM paketi eklenince.
+- [[Kaynaklar/Güvenlik Skilleri/5 Yapay zekâ/ai-security|ai-security]] · YZ özelliği varsa.
+- [[Kaynaklar/Güvenlik Skilleri/1 Web ve API/toctou|toctou]] · macOS'ta dosya yolu ve yardımcı süreç işinde.
+- [[Kaynaklar/Güvenlik Skilleri/6 Genel liste ve rapor/reporting|reporting]] · bulgu yazılırken.
